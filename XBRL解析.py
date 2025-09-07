@@ -8,7 +8,7 @@ os.makedirs("xbrl_reports", exist_ok=True)
 os.makedirs("docs", exist_ok=True)
 
 BASE_DIR = r"xbrl_reports"
-OUTPUT_EXCEL = os.path.join(BASE_DIR, "docs/大量保有報告書_解析結果.xlsx")
+OUTPUT_EXCEL = os.path.join("docs", "大量保有報告書_解析結果.xlsx")
 
 def to_halfwidth_num(s: str) -> str:
     if s is None: return ""
