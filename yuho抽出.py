@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 # ===============================
 # 設定
 # ===============================
-API_KEY = "ここにあなたのAPIキーを直書きしてください"  # 👈 ローカル版と同じ
+API_KEY = "b3179bcab14b4053a5928dce030612f3"  # 👈 ローカル版と同じ
 BASE_URL = "https://api.edinet-fsa.go.jp/api/v2"
 OUTPUT_DIR = "yuho"
 
