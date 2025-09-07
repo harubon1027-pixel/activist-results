@@ -1,23 +1,26 @@
 name: Run Daily Activist Inspector
 
 on:
-  workflow_dispatch:       # 手動実行用
+  workflow_dispatch:
   schedule:
-    - cron: "0 0 * * *"   # 毎日9時(JST)に実行
+    - cron: "0 0 * * *"   # 毎日0時UTC（日本時間9時）
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
         with:
           python-version: "3.11"
 
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Run scripts
+      - name: Run pipeline
         run: |
           python "XBRL抽出(大量保有報告書のみ).py"
           python "XBRL解析.py"
@@ -29,6 +32,9 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          mkdir -p docs
           git add docs/アクティビスト銘柄_資産判定.xlsx
+          git add docs/アクティビスト銘柄一覧.xlsx || true
+          git add docs/大量保有報告書_解析結果.xlsx || true
           git commit -m "Auto update results" || echo "No changes"
           git push
