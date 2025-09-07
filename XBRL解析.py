@@ -123,3 +123,8 @@ for zip_path in glob.glob(os.path.join(BASE_DIR, "*.zip")):
 df_out = pd.DataFrame(records)
 df_out.to_excel(OUTPUT_EXCEL, index=False)
 print(f"✅ 大量保有報告書の解析完了: {OUTPUT_EXCEL}")
+
+print("✅ DataFrame shape:", df.shape)
+print("✅ 保存先:", OUTPUT_EXCEL)
+print("✅ ファイル存在:", os.path.exists(OUTPUT_EXCEL))
+
