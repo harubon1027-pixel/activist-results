@@ -1,30 +1,22 @@
 name: Run Daily Activist Inspector
 
 on:
+  workflow_dispatch:       # 手動実行用
   schedule:
-    - cron: "0 0 * * *"   # 毎日0時(UTC) → 日本時間9時に実行
-  workflow_dispatch:       # 手動実行できるようにする
+    - cron: "0 0 * * *"   # 毎日9時(JST)に実行
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-      # (1) リポジトリの中身を取得
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      # (2) Pythonをセットアップ
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
         with:
           python-version: "3.11"
 
-      # (3) 必要ライブラリをインストール
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      # (4) 5本のスクリプトを順番に実行
       - name: Run scripts
         run: |
           python "XBRL抽出(大量保有報告書のみ).py"
@@ -33,12 +25,10 @@ jobs:
           python "yuho抽出.py"
           python "yuho解析.py"
 
-      # (5) 成果物をdocs/にコミット
-      - name: Commit results
+      - name: Commit results to docs/
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          mkdir -p docs
           git add docs/アクティビスト銘柄_資産判定.xlsx
-          git commit -m "Auto update results" || echo "No changes to commit"
+          git commit -m "Auto update results" || echo "No changes"
           git push
