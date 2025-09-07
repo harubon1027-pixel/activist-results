@@ -8,9 +8,14 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write   # 👈 これで push 権限を付与する
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          persist-credentials: false  # 👈 デフォルト資格情報を無効化
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -28,13 +33,14 @@ jobs:
           python "yuho抽出.py"
           python "yuho解析.py"
 
+      - name: Show docs folder contents
+        run: ls -lh docs || true
+
       - name: Commit results to docs/
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           mkdir -p docs
-          git add docs/アクティビスト銘柄_資産判定.xlsx
-          git add docs/アクティビスト銘柄一覧.xlsx || true
-          git add docs/大量保有報告書_解析結果.xlsx || true
+          git add docs/*.xlsx || true
           git commit -m "Auto update results" || echo "No changes"
-          git push
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:main
