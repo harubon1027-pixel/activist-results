@@ -2,16 +2,20 @@ import os
 import pandas as pd
 import requests, zipfile, io
 from datetime import datetime, timedelta
-os.makedirs("yuho", exist_ok=True)
 
 # ===============================
 # 設定
 # ===============================
-API_KEY = os.getenv("EDINET_API_KEY")  # ←自分のAPIキーを入れてください
+API_KEY = "ここにあなたのAPIキーを直書きしてください"  # 👈 ローカル版と同じ
 BASE_URL = "https://api.edinet-fsa.go.jp/api/v2"
-OUTPUT_DIR = r"yuho"
+OUTPUT_DIR = "yuho"
 
 os.makedirs(OUTPUT_DIR, exist_ok=True)
+
+# siryou フォルダを作成
+CSV_DIR = "siryou"
+os.makedirs(CSV_DIR, exist_ok=True)
+CSV_PATH = os.path.join(CSV_DIR, "EdinetcodeDlInfo.csv")
 
 # ===== 対象様式コード（有報/半期/四半期） =====
 YUHO_ORD_FORM = {
@@ -55,17 +59,27 @@ def download_xbrl(doc_id):
     except Exception as e:
         print(f"❌ {doc_id} ダウンロード失敗: {e}")
 
+def prepare_edinet_code_csv():
+    """EdinetcodeDlInfo.csv が無ければ自動ダウンロード"""
+    if not os.path.exists(CSV_PATH):
+        url = "https://disclosure2dl.edinet-fsa.go.jp/EdinetcodeDlInfo.csv"
+        res = requests.get(url, timeout=30)
+        if res.status_code == 200:
+            with open(CSV_PATH, "wb") as f:
+                f.write(res.content)
+            print(f"✅ EdinetcodeDlInfo.csv をダウンロードしました")
+        else:
+            raise RuntimeError(f"❌ EdinetcodeDlInfo.csv ダウンロード失敗: {res.status_code}")
+
 def main():
     # 1. アクティビスト銘柄一覧（証券コードに末尾0を追加して5桁化）
-    activist_df = pd.read_excel(r"docs/アクティビスト銘柄一覧.xlsx")
+    activist_path = os.path.join("docs", "アクティビスト銘柄一覧.xlsx")
+    activist_df = pd.read_excel(activist_path)
     target_sec_codes = set(str(c).zfill(4) + "0" for c in activist_df["証券コード"].dropna().unique())
 
-    # 2. EdinetcodeDlInfo.csv を読み込む（先頭1行スキップ）
-    code_df = pd.read_csv(
-        r"siryou\EdinetcodeDlInfo.csv",
-        encoding="cp932",
-        skiprows=1
-    )
+    # 2. EdinetcodeDlInfo.csv を用意して読み込み
+    prepare_edinet_code_csv()
+    code_df = pd.read_csv(CSV_PATH, encoding="cp932", skiprows=1)
 
     # 3. 列名で指定（CSV側はすでに5桁）
     edinet_col = code_df["ＥＤＩＮＥＴコード"]
