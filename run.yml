@@ -42,3 +42,7 @@ jobs:
           git add docs/アクティビスト銘柄_資産判定.xlsx
           git commit -m "Auto update results" || echo "No changes to commit"
           git push
+
+       - name: Show docs folder contents
+ 　　　　 run: ls -lh docs
+
