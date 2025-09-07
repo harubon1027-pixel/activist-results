@@ -1,10 +1,9 @@
-import requests, os
+import requests, os, zipfile
 from datetime import datetime, timedelta
 
-API_KEY = os.getenv("EDINET_API_KEY")  # GitHub Secretsから取得
+API_KEY = os.getenv("EDINET_API_KEY")  # Secretsから取得
 BASE_URL = "https://api.edinet-fsa.go.jp/api/v2"
-OUTPUT_DIR = os.path.join(os.getcwd(), "xbrl_reports")
-
+OUTPUT_DIR = os.path.join("xbrl_reports")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 def get_documents_list(date_str):
@@ -25,16 +24,13 @@ def download_xbrl(doc_id):
         return save_path
 
 def main():
-    start_date = datetime.strptime("2023/07/01", "%Y/%m/%d").date()
-    end_date   = datetime.strptime("2025/12/01", "%Y/%m/%d").date()
-    current = start_date
-    while current <= end_date:
-        date_str = current.strftime("%Y-%m-%d")
+    today = datetime.now().date()
+    for i in range(3):  # 最新3日分だけテスト（慣れたら期間延長可）
+        date_str = (today - timedelta(days=i)).strftime("%Y-%m-%d")
         docs = get_documents_list(date_str)
         for doc in docs:
             if doc.get("formCode") == "010000" and "大量保有報告書" in doc.get("docDescription", ""):
                 download_xbrl(doc["docID"])
-        current += timedelta(days=1)
 
 if __name__ == "__main__":
     main()
