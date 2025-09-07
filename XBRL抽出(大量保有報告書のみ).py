@@ -11,7 +11,7 @@ OUTPUT_DIR = "xbrl_reports"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 # 取得日数を設定（例: 365 = 1年分）
-DAYS = 365  
+DAYS = 1095
 
 def get_documents_list(date_str):
     """日付を指定して提出書類一覧を取得"""
