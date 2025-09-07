@@ -3,7 +3,7 @@ name: Run Daily Activist Inspector
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 0 * * *"   # 毎日0時UTC（日本時間9時）
+    - cron: "0 15 * * *"   # 毎日0時UTC（日本時間9時）
 
 jobs:
   build:
