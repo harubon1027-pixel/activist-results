@@ -1,12 +1,9 @@
-import os, zipfile, pandas as pd, xml.etree.ElementTree as ET, yfinance as yf
+import os, zipfile, pandas as pd, xml.etree.ElementTree as ET
 
 TAG_MAP = {
     "証券コード": ["SecurityCodeDEI"],
-    "会社名": ["CompanyNameCoverPage"],
-    "現金": ["CashAndDeposits", "CashAndCashEquivalents"],
-    "不動産": ["Land", "BuildingsAndStructuresNet"],
-    "株式": ["InvestmentSecurities", "Securities"],
-    "純資産": ["NetAssets"],
+    "提出者名": ["FilerNameInJapanese"],
+    "会社名": ["CompanyNameCoverPage"]
 }
 
 def extract_xbrl_from_zip(zip_path):
@@ -24,15 +21,20 @@ def extract_xbrl_from_zip(zip_path):
     return values
 
 def main():
-    yuho_dir = os.path.join(os.getcwd(), "yuho")
-    os.makedirs(yuho_dir, exist_ok=True)
+    input_dir = "xbrl_reports"
+    output_dir = "docs"
+    os.makedirs(output_dir, exist_ok=True)
+
     results = []
-    for file in os.listdir(yuho_dir):
+    for file in os.listdir(input_dir):
         if file.endswith(".zip"):
-            values = extract_xbrl_from_zip(os.path.join(yuho_dir, file))
+            values = extract_xbrl_from_zip(os.path.join(input_dir, file))
             results.append(values)
+
     df = pd.DataFrame(results)
-    df.to_excel(os.path.join("docs", "XBRL解析結果.xlsx"), index=False)
+    save_path = os.path.join(output_dir, "大量保有報告書_解析結果.xlsx")
+    df.to_excel(save_path, index=False)
+    print(f"✅ 保存完了: {save_path}")
 
 if __name__ == "__main__":
     main()
